@@ -1,3 +1,7 @@
+/* Copyright 2026 Francis James Franklin
+ * MIT license: See LICENSE file.
+ */
+
 #ifndef R4CANBUS_HH
 #define R4CANBUS_HH
 

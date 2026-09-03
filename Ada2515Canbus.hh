@@ -1,3 +1,7 @@
+/* Copyright 2026 Francis James Franklin
+ * MIT license: See LICENSE file.
+ */
+
 #ifndef ADA2515CANBUS_HH
 #define ADA2515CANBUS_HH
 

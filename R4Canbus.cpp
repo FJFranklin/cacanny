@@ -1,3 +1,7 @@
+/* Copyright 2026 Francis James Franklin
+ * MIT license: See LICENSE file.
+ */
+
 #if defined(ARDUINO_MINIMA)
 
 #include <Arduino_CAN.h>

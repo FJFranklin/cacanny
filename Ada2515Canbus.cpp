@@ -1,3 +1,7 @@
+/* Copyright 2026 Francis James Franklin
+ * MIT license: See LICENSE file.
+ */
+
 #include <Adafruit_MCP2515.h>
 
 #include "Ada2515Canbus.hh"

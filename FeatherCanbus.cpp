@@ -1,3 +1,7 @@
+/* Copyright 2026 Francis James Franklin
+ * MIT license: See LICENSE file.
+ */
+
 #if defined(ADAFRUIT_FEATHER_M4_CAN)
 
 #include <CANSAME5x.h>

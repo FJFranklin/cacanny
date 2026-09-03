@@ -1,3 +1,7 @@
+/* Copyright 2026 Francis James Franklin
+ * MIT license: See LICENSE file.
+ */
+
 #ifndef TWAICANBUS_HH
 #define TWAICANBUS_HH
 
