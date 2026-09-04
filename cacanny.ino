@@ -10,6 +10,8 @@
 #  include "TwaiCanbus.hh"
 #elif defined(ARDUINO_MINIMA)
 #  include "R4Canbus.hh"
+#elif defined(CORE_TEENSY)
+#  include "TeensyCanbus.hh"
 #else
 #  include "Ada2515Canbus.hh"
 #endif
@@ -43,6 +45,8 @@ void setup() {
   bus = TwaiCanbus::bus();
 #elif defined(ARDUINO_MINIMA)
   bus = R4Canbus::bus();
+#elif defined(CORE_TEENSY)
+  bus = TeensyCanbus::bus();
 #else
   bus = Ada2515Canbus::bus();
 #endif
