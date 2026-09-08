@@ -19,7 +19,7 @@ namespace CaCanny {
     friend LinkedItem;
   protected:
     virtual void linked_item_push(LinkedItem& item) = 0;
-    virtual LinkedItem *linked_item_pop() = 0;
+    virtual LinkedItem* linked_item_pop() = 0;
   public:
     virtual ~LinkedItemOwner() { }
   };
@@ -27,8 +27,8 @@ namespace CaCanny {
   class LinkedItem {
     friend LinkedList;
   private:
-    LinkedItem      *m_next;
-    LinkedItemOwner *m_owner;
+    LinkedItem* m_next;
+    LinkedItemOwner* m_owner;
   public:
     LinkedItem() :
       m_next(0),
@@ -48,28 +48,28 @@ namespace CaCanny {
 
   class LinkedList : public LinkedItemOwner {
   private:
-    LinkedItem *m_next;
-    int         m_count;
+    LinkedItem* m_next;
+    int m_count;
   public:
+    static bool bISR;
+
     LinkedList() : m_next(0), m_count(0) {
       // ...
     }
-    virtual ~LinkedList() {
-      // ...
-    }
+    virtual ~LinkedList() { }
   protected:
     inline void linked_item_adopt(LinkedItem& item) {
       item.m_owner = this;
     }
     virtual void linked_item_push(LinkedItem& item);
-    virtual LinkedItem *linked_item_pop();
-    LinkedItem *linked_item(int index) const;
+    virtual LinkedItem* linked_item_pop();
+    LinkedItem* linked_item(int index) const;
   public:
     inline int count() const {
       return m_count;
     }
     inline void pop_and_return() {
-      LinkedItem *iptr = linked_item_pop();
+      LinkedItem* iptr = linked_item_pop();
       if (iptr)
         iptr->return_to_owner();
     }
@@ -84,11 +84,11 @@ namespace CaCanny {
         linked_item_adopt(item);
       linked_item_push(item);
     }
-    inline T *pop() {
-      return (T *) linked_item_pop();
+    inline T* pop() {
+      return (T*) linked_item_pop();
     }
-    inline const T *item(int index) const {
-      return (const T *) linked_item(index);
+    inline const T* item(int index) const {
+      return (const T*) linked_item(index);
     }
   };
 
@@ -115,13 +115,13 @@ namespace CaCanny {
     }
   };
 
-  template<uint8_t count>
+  template<uint8_t MSCount>
   class MessageStore : public ItemOwner<CanMessage> {
   private:
-    CanMessage m_allocation[count];
+    CanMessage m_allocation[MSCount];
   public:
     MessageStore() {
-      for (uint8_t i = 0; i < count; i++) {
+      for (uint8_t i = 0; i < MSCount; i++) {
 	push(m_allocation[i], true);
       }
     }

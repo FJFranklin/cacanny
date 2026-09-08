@@ -5,40 +5,54 @@
  * Open Source under the MIT License - see LICENSE in the project's root folder
  */
 
-#include <CaCanny_Utils.hh>
+#include "CaCanny_Utils.hh"
 
 using namespace CaCanny;
 
+bool LinkedList::bISR = false;
+
 void LinkedList::linked_item_push(LinkedItem& item) {
+  if (!bISR) noInterrupts();
+
   if (!m_next) {
     m_next = &item;
   } else {
-    LinkedItem *iptr = m_next;
+    LinkedItem* iptr = m_next;
     while (iptr->m_next)
       iptr = iptr->m_next;
     iptr->m_next = &item;
   }
   item.m_next = 0;
   ++m_count;
+
+  if (!bISR) interrupts();
 }
 
-LinkedItem *LinkedList::linked_item_pop() {
-  LinkedItem *iptr = m_next;
+LinkedItem* LinkedList::linked_item_pop() {
+  if (!bISR) noInterrupts();
+
+  LinkedItem* iptr = m_next;
   if (iptr) {
     m_next = iptr->m_next;
     iptr->m_next = 0;
     --m_count;
   }
+
+  if (!bISR) interrupts();
   return iptr;
 }
 
-LinkedItem *LinkedList::linked_item(int index) const {
-  LinkedItem *iptr = m_next;
+LinkedItem* LinkedList::linked_item(int index) const { // is this used?
+  if (!bISR) noInterrupts();
+
+  LinkedItem* iptr = m_next;
 
   if (index >= 0 && index < m_count) {
     while (index--)
       iptr = iptr->m_next;
   }
+
+  if (!bISR) interrupts();
   return iptr;
 }
 
