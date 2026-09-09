@@ -7,6 +7,7 @@
 
 #include "CaCanny_Feather.hh"
 #include "CaCanny_Minima.hh"
+#include "CaCanny_Teensy.hh"
 
 using namespace CaCanny;
 
@@ -165,6 +166,8 @@ void setup() {
   Feather* bus = Feather::bus(store);
 #elif defined(ARDUINO_MINIMA)
   Minima* bus = Minima::bus(store);
+#elif defined(TEENSYDUINO)
+  Teensy* bus = Teensy::bus(store);
 #endif
   if (bus) {
     App app(store, bus);

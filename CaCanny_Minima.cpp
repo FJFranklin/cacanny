@@ -61,7 +61,7 @@ void Minima::spin() {
     if (will_accept_id(packet_id)) { // is the packet ID relevant to us?
       msg = m_store.pop();
       if (!msg) { // no messages in store - oops
-	++m_messages_lost;
+        ++m_messages_lost;
       }
     }
     if (msg) {

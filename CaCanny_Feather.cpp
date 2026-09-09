@@ -105,7 +105,7 @@ void Feather::receive(int count) {
     for (int i = 0; i < count; i++) {
       uint8_t c = m_CAN.read();
       if (msg && (i < 8))
-	msg->buffer[i] = c;
+        msg->buffer[i] = c;
     }
   }
   if (msg) {
