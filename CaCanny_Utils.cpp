@@ -114,5 +114,6 @@ void Timer::run() {
 	}
       }
     }
+    yield(); // just in case it's needed, e.g., to reset the watchdog timer on the ESP8266
   }
 }

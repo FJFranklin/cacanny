@@ -23,8 +23,8 @@ namespace CaCanny {
   class Base {
   private:
     Handler* m_handler;
-    ItemOwner<CanMessage>& m_store;
   protected:
+    ItemOwner<CanMessage>& m_store;
     uint32_t m_messages_received;
     uint32_t m_messages_lost; // lost specifically because no CanMessage instances in store
     ItemOwner<CanMessage> m_received;

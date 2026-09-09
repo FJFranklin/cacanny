@@ -51,7 +51,7 @@ namespace CaCanny {
     LinkedItem* m_next;
     int m_count;
   public:
-    static bool bISR;
+    volatile static bool bISR;
 
     LinkedList() : m_next(0), m_count(0) {
       // ...
@@ -99,19 +99,34 @@ namespace CaCanny {
 
     uint32_t id;
 
-    bool bExtended;
-    bool bTransReq;
+    bool extended;
+    bool remote;
 
     CanMessage() :
       length(0),
       id(0),
-      bExtended(false),
-      bTransReq(false)
+      extended(false),
+      remote(false)
     {
       // ...
     }
     virtual ~CanMessage() {
       // ...
+    }
+
+    inline void transmission_request(uint32_t message_id, uint8_t requested_length) {
+      const uint32_t extmask = 0x1FFFF800UL;
+      id = message_id;
+      length = requested_length;
+      extended = id & extmask;
+      remote = true;
+    }
+    inline void data_frame(uint32_t message_id, uint8_t message_length) {
+      const uint32_t extmask = 0x1FFFF800UL;
+      id = message_id;
+      length = message_length;
+      extended = id & extmask;
+      remote = false;
     }
   };
 
