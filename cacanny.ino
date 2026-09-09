@@ -6,6 +6,7 @@
  */
 
 #include "CaCanny_Feather.hh"
+#include "CaCanny_Minima.hh"
 
 using namespace CaCanny;
 
@@ -160,7 +161,11 @@ MessageStore<16> store;
 void setup() {
   Serial.begin(115200);
 
+#if defined(ADAFRUIT_FEATHER_M4_CAN)
   Feather* bus = Feather::bus(store);
+#elif defined(ARDUINO_MINIMA)
+  Minima* bus = Minima::bus(store);
+#endif
   if (bus) {
     App app(store, bus);
 
