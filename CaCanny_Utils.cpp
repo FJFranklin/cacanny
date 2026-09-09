@@ -5,11 +5,15 @@
  * Open Source under the MIT License - see LICENSE in the project's root folder
  */
 
+#if defined(ADAFRUIT_FEATHER_M4_CAN)
+#include <Adafruit_NeoPixel.h>
+#endif
+
 #include "CaCanny_Utils.hh"
 
 using namespace CaCanny;
 
-bool LinkedList::bISR = false;
+volatile bool LinkedList::bISR = false;
 
 void LinkedList::linked_item_push(LinkedItem& item) {
   if (!bISR) noInterrupts();
@@ -116,4 +120,71 @@ void Timer::run() {
     }
     yield(); // just in case it's needed, e.g., to reset the watchdog timer on the ESP8266
   }
+}
+
+#if defined(ADAFRUIT_FEATHER_M4_CAN)
+static Adafruit_NeoPixel s_pixel(1, PIN_NEOPIXEL, NEO_GRB + NEO_KHZ800);
+static LED s_led(&s_pixel);
+#else
+static LED s_led;
+#endif
+
+LED* LED::onboard_LED() {
+  return &s_led;
+}
+
+LED::LED(Adafruit_NeoPixel* pixel) : m_pixel(pixel) {
+#if defined(ADAFRUIT_FEATHER_M4_CAN)
+  if (m_pixel) {
+    m_pixel->begin();
+    m_pixel->setPixelColor(0, m_pixel->Color(0, 255, 0));
+    m_pixel->setBrightness(1);
+    m_pixel->show();
+  }
+#else
+  pinMode(LED_BUILTIN, OUTPUT);
+#endif
+}
+
+void LED::blink(bool bOn) {
+#if defined(ADAFRUIT_FEATHER_M4_CAN)
+  if (m_pixel) {
+    m_pixel->setBrightness(bOn ? 31 : 1);
+    m_pixel->show();
+  }
+#else
+  digitalWrite(LED_BUILTIN, bOn);
+#endif
+}
+
+void LED::error(int e1, int e2, int e3, bool loop_forever) { // on fatal error, cycle forever, blinking
+#if defined(ADAFRUIT_FEATHER_M4_CAN)
+  if (m_pixel) {
+    m_pixel->setPixelColor(0, m_pixel->Color(255, 0, 0)); // switch pixel to red
+  }
+#endif
+  
+  int ecode[3] = {e1, e2, e3};
+  while (true) {
+    blink(true);
+    delay(500);
+    blink(false);
+    delay(500);
+    for (int ec = 0; ec < 3; ec++) {
+      for (int eb = 0; eb < ecode[ec]; eb++) {
+        blink(true);
+        delay(100);
+        blink(false);
+        delay(100);
+      }
+      delay(400);
+    }
+    if (!loop_forever) break;
+  }
+
+#if defined(ADAFRUIT_FEATHER_M4_CAN)
+  if (m_pixel) {
+    m_pixel->setPixelColor(0, m_pixel->Color(0, 255, 0)); // switch pixel to green
+  }
+#endif
 }

@@ -10,6 +10,8 @@
 
 #include <Arduino.h>
 
+class Adafruit_NeoPixel;
+
 namespace CaCanny {
 
   class LinkedItem;
@@ -168,6 +170,19 @@ namespace CaCanny {
       m_stop = true;
     }
     void run();
+  };
+
+  class LED {
+  private:
+    Adafruit_NeoPixel* m_pixel; // for the Feather M4 CAN
+  public:
+    static LED* onboard_LED();
+
+    LED(Adafruit_NeoPixel* pixel = 0);
+    ~LED() {}
+
+    void blink(bool bOn);
+    void error(int e1, int e2, int e3, bool loop_forever = true);
   };
 
 } // CaCanny

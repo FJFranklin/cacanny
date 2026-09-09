@@ -99,7 +99,7 @@ void Feather::receive(int count) {
     }
   } else {
     if (msg) {
-      msg->data_frame(m_CAN.packetId(), (count > 8) ? 8 : 0);
+      msg->data_frame(m_CAN.packetId(), (count > 8) ? 8 : count);
       msg->extended = m_CAN.packetExtended();
     }
     for (int i = 0; i < count; i++) {
