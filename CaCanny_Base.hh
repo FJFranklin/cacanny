@@ -1,5 +1,8 @@
-/* Copyright 2026 Francis James Franklin
- * MIT license: See LICENSE file.
+/* -*- mode: c++ -*-
+ * 
+ * Copyright 2026 Francis James Franklin
+ * 
+ * Open Source under the MIT License - see LICENSE in the project's root folder
  */
 
 #ifndef CaCanny_Base_hh

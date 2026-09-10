@@ -5,9 +5,11 @@
  * Open Source under the MIT License - see LICENSE in the project's root folder
  */
 
+#include "CaCanny_config.hh"
+
 #include "CaCanny_Feather.hh"
-#include "CaCanny_UnoR4WiFi.hh"
 #include "CaCanny_Teensy.hh"
+#include "CaCanny_MCP2515.hh"
 
 using namespace CaCanny;
 
@@ -15,20 +17,20 @@ static uint32_t s_default_id = 24;
 static uint32_t s_accepts_id = 25;
 
 static void id_setup() {
-  /* Test arrangement is to have two Feathers talking to each other and the Teensy 4.1 talking to the Uno R4 Wifi
+  /* Test arrangement is to have two Feathers talking to each other and the Teensy 4.1 talking to the MCP2515
    */
-#if defined(ADAFRUIT_FEATHER_M4_CAN)
+#if defined(USE_MCP2515)
+  s_default_id = 29;
+  s_accepts_id = 30;
+#elif defined(ADAFRUIT_FEATHER_M4_CAN)
   pinMode(12, INPUT);
   if (digitalRead(12)) {
     s_default_id = 28;
     s_accepts_id = 27;
   } else {
-    s_default_id = 29; // 27;
-    s_accepts_id = 30; // 28;
+    s_default_id = 27;
+    s_accepts_id = 28;
   }
-#elif defined(ARDUINO_UNOR4_WIFI)
-  s_default_id = 29;
-  s_accepts_id = 30;
 #elif defined(TEENSYDUINO)
   s_default_id = 30;
   s_accepts_id = 29;
@@ -174,10 +176,10 @@ void setup() {
 
   id_setup(); // see who we are and who we're listening to
 
-#if defined(ADAFRUIT_FEATHER_M4_CAN)
+#if defined(USE_MCP2515)
+  MCP2515* bus = MCP2515::bus(store);
+#elif defined(ADAFRUIT_FEATHER_M4_CAN)
   Feather* bus = Feather::bus(store);
-#elif defined(ARDUINO_UNOR4_WIFI)
-  UnoR4WiFi* bus = UnoR4WiFi::bus(store);
 #elif defined(TEENSYDUINO)
   Teensy* bus = Teensy::bus(store);
 #endif
