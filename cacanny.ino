@@ -6,12 +6,38 @@
  */
 
 #include "CaCanny_Feather.hh"
-#include "CaCanny_Minima.hh"
+#include "CaCanny_UnoR4WiFi.hh"
 #include "CaCanny_Teensy.hh"
 
 using namespace CaCanny;
 
-const uint32_t default_id = 27;
+static uint32_t s_default_id = 24;
+static uint32_t s_accepts_id = 25;
+
+static void id_setup() {
+  /* Test arrangement is to have two Feathers talking to each other and the Teensy 4.1 talking to the Uno R4 Wifi
+   */
+#if defined(ADAFRUIT_FEATHER_M4_CAN)
+  pinMode(12, INPUT);
+  if (digitalRead(12)) {
+    s_default_id = 28;
+    s_accepts_id = 27;
+  } else {
+    s_default_id = 29; // 27;
+    s_accepts_id = 30; // 28;
+  }
+#elif defined(ARDUINO_UNOR4_WIFI)
+  s_default_id = 29;
+  s_accepts_id = 30;
+#elif defined(TEENSYDUINO)
+  s_default_id = 30;
+  s_accepts_id = 29;
+#endif
+  Serial.print("ID: TX=");
+  Serial.print(s_default_id);
+  Serial.print(", RX=");
+  Serial.println(s_accepts_id);
+}
 
 static const uint8_t s_hex[16] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
@@ -39,10 +65,18 @@ class App : public Timer, public Handler {
 private:
   ItemOwner<CanMessage>& m_store;
   Base* m_bus;
-  uint8_t m_ping_seq_no;
+  uint8_t m_last_ping_sent;
+  uint32_t m_ping_count;
+  uint32_t m_pong_count;
   LED* m_led;
 public:
-  App(ItemOwner<CanMessage>& store, Base* bus) : m_store(store), m_bus(bus), m_ping_seq_no(0) {
+  App(ItemOwner<CanMessage>& store, Base* bus) :
+    m_store(store),
+    m_bus(bus),
+    m_last_ping_sent(0),
+    m_ping_count(0),
+    m_pong_count(0)
+  {
     m_led = LED::onboard_LED();
   }
   ~App() {
@@ -69,44 +103,43 @@ public:
     Serial.print("lost ");
     Serial.print(lost);
     Serial.print("/");
-    Serial.println(received);
+    Serial.print(received);
+    Serial.print(", lost pings = ");
+    Serial.println(m_ping_count - m_pong_count);
   }
 
   void send_ping() {
+    ++m_last_ping_sent;
+    ++m_ping_count;
+
     CanMessage* msg = m_store.pop();
     if (!msg) return; // no messages in store
 
-    msg->data_frame(default_id, 8);
+    msg->data_frame(s_default_id, 8);
     memcpy(msg->buffer, "ping: ", 6);
 
-    msg->buffer[6] = s_hex[m_ping_seq_no >> 4];
-    msg->buffer[7] = s_hex[m_ping_seq_no & 0x0F];
+    msg->buffer[6] = s_hex[m_last_ping_sent >> 4];
+    msg->buffer[7] = s_hex[m_last_ping_sent & 0x0F];
     m_bus->send(msg);
-
-    ++m_ping_seq_no;
-    // Serial.println("ping sent");
   }
   void ping_received(uint32_t packet_id, uint8_t seq_no) { // send pong
     CanMessage* msg = m_store.pop();
     if (!msg) return; // no messages in store
 
-    msg->data_frame(default_id, 8);
+    msg->data_frame(s_default_id, 8);
     memcpy(msg->buffer, "pong: ", 6);
 
     msg->buffer[6] = s_hex[seq_no >> 4];
     msg->buffer[7] = s_hex[seq_no & 0x0F];
     m_bus->send(msg);
-
-    // Serial.print(" <<");
   }
   void pong_received(uint32_t packet_id, uint8_t seq_no) {
-    if (m_ping_seq_no == (uint8_t) (seq_no + 1)) {
-      // Serial.print(" OK");
-    } else {
-      Serial.print(" ");
+    if (seq_no != m_last_ping_sent) {
       Serial.print(seq_no);
       Serial.print(" != ");
-      Serial.println((uint8_t) (m_ping_seq_no - 1));
+      Serial.println(m_last_ping_sent);
+    } else {
+      ++m_pong_count; // count matching pongs only
     }
   }
   void tick() {
@@ -115,45 +148,21 @@ public:
     CanMessage* msg = m_bus->next(); // check for queued incoming messages
     if (!msg) return;
 
-    /* if (msg->remote)
-      Serial.print("r(");
-    else
-      Serial.print("d(");
-    if (msg->extended)
-      Serial.print("e) [");
-    else
-      Serial.print("s) [");
-
-    Serial.print(msg->id);
-    Serial.print("]");
-
-    if (!msg->remote) {
-      Serial.print(" '");
-      for (uint8_t i = 0; i < msg->length; i++)
-        Serial.write(msg->buffer[i]);
-      Serial.print("'");
-    }*/
-
     if (msg->length == 8) {
       if (memcmp(msg->buffer, "ping: ", 6) == 0) {
-        //Serial.print(" ping!");
         ping_received(msg->id, s_hex_to_int(msg->buffer + 6));
       }
       if (memcmp(msg->buffer, "pong: ", 6) == 0) {
-        //Serial.print(" pong!");
         pong_received(msg->id, s_hex_to_int(msg->buffer + 6));
       }
     }
-
-    //Serial.println();
-
     msg->return_to_owner();
   }
 
   bool will_accept_id(uint32_t id) {
     /* This is called from within an interrupt, so be quick and don't play with hardware
      */
-    return true;
+    return id == s_accepts_id; // only care about one incoming ID
   }
 };
 
@@ -161,11 +170,14 @@ MessageStore<16> store;
 
 void setup() {
   Serial.begin(115200);
+  delay(2000);
+
+  id_setup(); // see who we are and who we're listening to
 
 #if defined(ADAFRUIT_FEATHER_M4_CAN)
   Feather* bus = Feather::bus(store);
-#elif defined(ARDUINO_MINIMA)
-  Minima* bus = Minima::bus(store);
+#elif defined(ARDUINO_UNOR4_WIFI)
+  UnoR4WiFi* bus = UnoR4WiFi::bus(store);
 #elif defined(TEENSYDUINO)
   Teensy* bus = Teensy::bus(store);
 #endif

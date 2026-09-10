@@ -175,6 +175,7 @@ namespace CaCanny {
   class LED {
   private:
     Adafruit_NeoPixel* m_pixel; // for the Feather M4 CAN
+    bool m_state;
   public:
     static LED* onboard_LED();
 

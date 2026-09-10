@@ -5,20 +5,20 @@
  * Open Source under the MIT License - see LICENSE in the project's root folder
  */
 
-#ifndef CaCanny_Minima_hh
-#define CaCanny_Minima_hh
+#ifndef CaCanny_UnoR4WiFi_hh
+#define CaCanny_UnoR4WiFi_hh
 
 #include "CaCanny_Base.hh"
 
 namespace CaCanny {
 
-  class Minima : public Base {
+  class UnoR4WiFi : public Base {
   public:
-    static Minima* bus(ItemOwner<CanMessage>& store);
+    static UnoR4WiFi* bus(ItemOwner<CanMessage>& store);
 
-    Minima(ItemOwner<CanMessage>& store);
+    UnoR4WiFi(ItemOwner<CanMessage>& store);
 
-    ~Minima() { }
+    ~UnoR4WiFi() { }
 
     bool begin(Bitrate bitrate = lb_250kbit);
     void spin();
@@ -26,4 +26,4 @@ namespace CaCanny {
 
 } // CaCanny
 
-#endif /* ! CaCanny_Minima_hh */
+#endif /* ! CaCanny_UnoR4WiFi_hh */

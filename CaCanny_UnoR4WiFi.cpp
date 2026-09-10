@@ -5,30 +5,30 @@
  * Open Source under the MIT License - see LICENSE in the project's root folder
  */
 
-#if defined(ARDUINO_MINIMA)
+#if defined(ARDUINO_UNOR4_WIFI)
 
 #include <Arduino_CAN.h>
 
-#include "CaCanny_Minima.hh"
+#include "CaCanny_UnoR4WiFi.hh"
 
 using namespace CaCanny;
 
-static Minima* s_bus = 0;
+static UnoR4WiFi* s_bus = 0;
 
-Minima* Minima::bus(ItemOwner<CanMessage>& store) {
+UnoR4WiFi* UnoR4WiFi::bus(ItemOwner<CanMessage>& store) {
   if (!s_bus) {
-    s_bus = new Minima(store);
+    s_bus = new UnoR4WiFi(store);
   }
   return s_bus;
 }
 
-Minima::Minima(ItemOwner<CanMessage>& store) :
+UnoR4WiFi::UnoR4WiFi(ItemOwner<CanMessage>& store) :
   Base(store)
 {
   // ...
 }
 
-bool Minima::begin(Bitrate bitrate) {
+bool UnoR4WiFi::begin(Bitrate bitrate) {
   CanBitRate CAN_BAUDRATE = CanBitRate::BR_250k; // see ArduinoCore-API/api/HardwareCAN.h
 
   if (bitrate != lb_250kbit) {
@@ -44,7 +44,7 @@ bool Minima::begin(Bitrate bitrate) {
   return true;
 }
 
-void Minima::spin() {
+void UnoR4WiFi::spin() {
   /* check for incoming messages and add to receive queue
    */
   while (CAN.available()) {
@@ -83,4 +83,4 @@ void Minima::spin() {
   }
 }
 
-#endif // ARDUINO_MINIMA
+#endif // ARDUINO_UNOR4_WIFI

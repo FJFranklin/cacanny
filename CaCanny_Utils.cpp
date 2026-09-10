@@ -133,7 +133,7 @@ LED* LED::onboard_LED() {
   return &s_led;
 }
 
-LED::LED(Adafruit_NeoPixel* pixel) : m_pixel(pixel) {
+LED::LED(Adafruit_NeoPixel* pixel) : m_pixel(pixel), m_state(false) {
 #if defined(ADAFRUIT_FEATHER_M4_CAN)
   if (m_pixel) {
     m_pixel->begin();
@@ -143,10 +143,12 @@ LED::LED(Adafruit_NeoPixel* pixel) : m_pixel(pixel) {
   }
 #else
   pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, 0);
 #endif
 }
 
 void LED::blink(bool bOn) {
+  if (m_state == bOn) return; // don't waste time changing the state if it's already correct
 #if defined(ADAFRUIT_FEATHER_M4_CAN)
   if (m_pixel) {
     m_pixel->setBrightness(bOn ? 31 : 1);
@@ -155,6 +157,7 @@ void LED::blink(bool bOn) {
 #else
   digitalWrite(LED_BUILTIN, bOn);
 #endif
+  m_state = bOn;
 }
 
 void LED::error(int e1, int e2, int e3, bool loop_forever) { // on fatal error, cycle forever, blinking
