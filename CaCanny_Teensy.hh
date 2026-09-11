@@ -28,7 +28,7 @@ namespace CaCanny {
   public:
     static Teensy* bus(ItemOwner<CanMessage>& store, TeensyBus can_no = TeensyBus::tc_bn_1);
 
-    Teensy(ItemOwner<CanMessage>& store, FlexCAN_T4_Base* can_base, TeensyBus can_no);
+    Teensy(ItemOwner<CanMessage>& store, const char* const backend, FlexCAN_T4_Base* can_base, TeensyBus can_no);
 
     ~Teensy() { }
 

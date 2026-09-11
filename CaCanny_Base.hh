@@ -25,6 +25,7 @@ namespace CaCanny {
 
   class Base {
   private:
+    const char* const m_backend;
     Handler* m_handler;
   protected:
     ItemOwner<CanMessage>& m_store;
@@ -33,7 +34,12 @@ namespace CaCanny {
     ItemOwner<CanMessage> m_received;
     ItemOwner<CanMessage> m_transmit;
   public:
-    Base(ItemOwner<CanMessage>& store) :
+    const char* const backend() const { // string identifying backend in use
+      return m_backend;
+    }
+
+    Base(ItemOwner<CanMessage>& store, const char* const backend) :
+      m_backend(backend),
       m_handler(0),
       m_store(store),
       m_messages_received(0),

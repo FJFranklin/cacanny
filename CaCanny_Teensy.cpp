@@ -26,15 +26,15 @@ Teensy* Teensy::bus(ItemOwner<CanMessage>& store, TeensyBus can_no) {
 
   switch (can_no) {
   case TeensyBus::tc_bn_1:
-    if (!s_bus1) s_bus1 = new Teensy(store, &s_can1, TeensyBus::tc_bn_1);
+    if (!s_bus1) s_bus1 = new Teensy(store, "Teensy Can 1", &s_can1, TeensyBus::tc_bn_1);
     instance = s_bus1;
     break;
   case TeensyBus::tc_bn_2:
-    if (!s_bus2) s_bus2 = new Teensy(store, &s_can2, TeensyBus::tc_bn_2);
+    if (!s_bus2) s_bus2 = new Teensy(store, "Teensy Can 2", &s_can2, TeensyBus::tc_bn_2);
     instance = s_bus2;
     break;
   case TeensyBus::tc_bn_3:
-    if (!s_bus3) s_bus3 = new Teensy(store, &s_can3, TeensyBus::tc_bn_3);
+    if (!s_bus3) s_bus3 = new Teensy(store, "Teensy Can 3", &s_can3, TeensyBus::tc_bn_3);
     instance = s_bus3;
     break;
   }
@@ -65,8 +65,8 @@ void Teensy::bus3_sniff(const CAN_message_t& msg) {
   }
 }
 
-Teensy::Teensy(ItemOwner<CanMessage>& store, FlexCAN_T4_Base* can_base, TeensyBus can_no) :
-  Base(store),
+Teensy::Teensy(ItemOwner<CanMessage>& store, const char* const backend, FlexCAN_T4_Base* can_base, TeensyBus can_no) :
+  Base(store, backend),
   m_can_no(can_no),
   m_can_base(can_base)
 {

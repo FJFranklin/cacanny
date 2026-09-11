@@ -23,7 +23,7 @@ UnoR4WiFi* UnoR4WiFi::bus(ItemOwner<CanMessage>& store) {
 }
 
 UnoR4WiFi::UnoR4WiFi(ItemOwner<CanMessage>& store) :
-  Base(store)
+  Base(store, "Uno R4 WiFi")
 {
   // ...
 }

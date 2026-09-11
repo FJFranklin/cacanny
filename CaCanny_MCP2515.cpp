@@ -27,7 +27,7 @@ MCP2515* MCP2515::bus(ItemOwner<CanMessage>& store, int pin_chip_select, int pin
 }
 
 MCP2515::MCP2515(ItemOwner<CanMessage>& store, int pin_chip_select, int pin_interrupt) :
-  Base(store),
+  Base(store, "MCP2515"),
   m_mcp(new Adafruit_MCP2515(pin_chip_select)),
   m_pin_interrupt(pin_interrupt)
 {

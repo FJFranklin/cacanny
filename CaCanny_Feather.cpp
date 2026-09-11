@@ -24,7 +24,7 @@ Feather* Feather::bus(ItemOwner<CanMessage>& store) {
 }
 
 Feather::Feather(ItemOwner<CanMessage>& store, CANSAME5x& cansame) :
-  Base(store),
+  Base(store, "Feather M4 Can"),
   m_CAN(cansame)
 {
   pinMode(PIN_CAN_STANDBY, OUTPUT);

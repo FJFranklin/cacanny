@@ -9,9 +9,12 @@
 #define CaCanny_config_hh
 
 #define ENABLE_MCP2515   1 // include in build
-#define USE_MCP2515      1 // device should use MCP2515 
 
-#define USE_TEENSY_CAN_2 1 // if Teensy, device should use CAN2
-#define USE_1MBIT_CAN    1 // set can speed to 1 Mbit
+/* Uncomment one of the following if building on Teensy
+ */
+//#define TEST_CAN1_MCP2515_250k  1
+//#define TEST_CAN2_MCP2515_1000k 1
+#define TEST_CAN1_CAN2_250k     1
+//#define TEST_CAN1_CAN2_1000k    1
 
 #endif /* ! CaCanny_config_hh */
