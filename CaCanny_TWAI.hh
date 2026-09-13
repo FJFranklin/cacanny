@@ -29,10 +29,6 @@ namespace CaCanny {
 
     bool begin(Bitrate bitrate = lb_250kbit);
     void spin();
-
-  private:
-    static void receive_callback(int count);
-    void receive(int count);
   };
 
 } // CaCanny

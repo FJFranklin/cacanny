@@ -46,16 +46,44 @@ bool TWAI::begin(Bitrate bitrate) {
 
   if (twai_driver_install(&g_config, &t_config, &f_config) == ESP_OK) {
     if (twai_start() == ESP_OK) {
-      return true;
+    //if (twai_reconfigure_alerts(TWAI_ALERT_RX_DATA, 0) == ESP_OK) {
+        return true;
+    //}
     }
   }
-
-  // FIXME: add callback for receive
 
   return false;
 }
 
 void TWAI::spin() { // check for messages in transmit queue; send only one, if so
+  twai_status_info_t twaistatus;
+  twai_get_status_info(&twaistatus);
+  for (uint32_t p = 0; p < twaistatus.msgs_to_rx; p++) {
+    ++m_messages_received;
+
+    twai_message_t packet;
+    if (twai_receive(&packet, 0) != ESP_OK) { // oops ??
+      ++m_messages_lost;
+      break;
+    }
+    if (!will_accept_id(packet.identifier)) continue; // not interested in this one
+
+    CanMessage* msg = m_store.pop();
+    if (!msg) { // no message instances in store
+      ++m_messages_lost;
+      break;
+    }
+    if (packet.rtr) { // Remote transmission request, packet contains no data
+      msg->transmission_request(packet.identifier, packet.data_length_code);
+      msg->extended = packet.extd;
+    } else {
+      msg->data_frame(packet.identifier, (packet.data_length_code > 8) ? 8 : packet.data_length_code);
+      msg->extended = packet.extd;
+      memcpy(msg->buffer, packet.data, msg->length);
+    }
+    m_received.push(*msg);
+  }
+  
   CanMessage* msg = m_transmit.pop();
 
   if (!msg) { // no messages in transmit queue
@@ -68,7 +96,7 @@ void TWAI::spin() { // check for messages in transmit queue; send only one, if s
   packet.rtr = msg->remote;
   packet.data_length_code = msg->length;
 
-  if (!msg->remote) {
+  if (!msg->remote) { // FIXME
     for (int i = 0; i < msg->length; i++) {
       packet.data[i] = msg->buffer[i];
     }
@@ -76,48 +104,6 @@ void TWAI::spin() { // check for messages in transmit queue; send only one, if s
   twai_transmit(&packet, pdMS_TO_TICKS(10));
 
   msg->return_to_owner(); // return the message instance to the store
-}
-
-void TWAI::receive_callback(int count) {
-  if (s_bus) {
-    LinkedList::bISR = true;
-    s_bus->receive(count);
-    LinkedList::bISR = false;
-  }
-}
-
-void TWAI::receive(int count) {
-  ++m_messages_received;
-  /* FIXME
-  CanMessage* msg = 0;
-
-  if (will_accept_id(m_CAN.packetId())) { // is the packet ID relevant to us?
-    msg = m_store.pop();
-    if (!msg) { // no messages in store - oops
-      ++m_messages_lost;
-    }
-  }
-
-  if (m_CAN.packetRtr()) { // Remote transmission request, packet contains no data
-    if (msg) {
-      msg->transmission_request(m_CAN.packetId(), m_CAN.packetDlc());
-      msg->extended = m_CAN.packetExtended();
-    }
-  } else {
-    if (msg) {
-      msg->data_frame(m_CAN.packetId(), (count > 8) ? 8 : count);
-      msg->extended = m_CAN.packetExtended();
-    }
-    for (int i = 0; i < count; i++) {
-      uint8_t c = m_CAN.read();
-      if (msg && (i < 8))
-        msg->buffer[i] = c;
-    }
-  }
-  if (msg) {
-    m_received.push(*msg);
-  }
-  */
 }
 
 #endif // ESP_PLATFORM
