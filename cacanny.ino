@@ -10,6 +10,7 @@
 #include "CaCanny_Feather.hh"
 #include "CaCanny_Teensy.hh"
 #include "CaCanny_MCP2515.hh"
+#include "CaCanny_TWAI.hh"
 
 static const uint8_t s_hex[16] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
@@ -389,7 +390,7 @@ void setup() {
   Teensy* bus1 = Teensy::bus(store, TeensyBus::tc_bn_1);
   if (!bus1) {
     Serial.println("No Teensy CAN(1) bus?");
-    LED::onboard_LED()->error(3, 1, 1);
+    LED::onboard_LED()->error(5, 1, 1);
     // ~~ (unreached) ~~
   }
 
@@ -398,7 +399,7 @@ void setup() {
 
   if (!bus1->begin(Bitrate::lb_1Mbit)) {
     Serial.println("Teensy CAN(1) bus error.");
-    LED::onboard_LED()->error(3, 1, 2);
+    LED::onboard_LED()->error(5, 1, 2);
     // ~~ (unreached) ~~
   }
 
@@ -409,7 +410,7 @@ void setup() {
   Teensy* bus2 = Teensy::bus(store, TeensyBus::tc_bn_2);
   if (!bus2) {
     Serial.println("No Teensy CAN(2) bus?");
-    LED::onboard_LED()->error(3, 2, 1);
+    LED::onboard_LED()->error(5, 2, 1);
     // ~~ (unreached) ~~
   }
 
@@ -418,7 +419,7 @@ void setup() {
 
   if (!bus2->begin(Bitrate::lb_1Mbit)) {
     Serial.println("Teensy CAN(2) bus error.");
-    LED::onboard_LED()->error(3, 2, 2);
+    LED::onboard_LED()->error(5, 2, 2);
     // ~~ (unreached) ~~
   }
 
@@ -426,6 +427,28 @@ void setup() {
   Serial.println("Have Teensy CAN(2) bus @ 1Mbit");
 
 #endif // Teensy tests
+#elif defined(ESP_PLATFORM)
+
+  TWAI* bus1 = TWAI::bus(store);
+  if (!bus1) {
+    Serial.println("No TWAI bus?");
+    LED::onboard_LED()->error(6, 1, 1);
+    // ~~ (unreached) ~~
+  }
+
+  BusInfo BI1(store, bus1, 29 /* default_id */, 30 /* accepts_id */);
+  bus1->set_handler(&BI1);
+
+  if (!bus1->begin(Bitrate::lb_250kbit)) {
+    Serial.println("TWAI bus error.");
+    LED::onboard_LED()->error(6, 1, 2);
+    // ~~ (unreached) ~~
+  }
+
+  app.add(&BI1);
+  Serial.println("Have TWAI bus @ 250kbit");
+  delay(100);
+
 #endif
 
   Serial.println("Starting app...");
