@@ -7,10 +7,18 @@
 
 #include "CaCanny_config.hh"
 
+/* Uncomment one of the following if building on Teensy
+ */
+//#define TEST_CAN1_MCP2515_250k  1
+//#define TEST_CAN2_MCP2515_1000k 1
+#define TEST_CAN1_CAN2_250k     1
+//#define TEST_CAN1_CAN2_1000k    1
+
 #include "CaCanny_Feather.hh"
 #include "CaCanny_Teensy.hh"
 #include "CaCanny_MCP2515.hh"
 #include "CaCanny_TWAI.hh"
+#include "CaCanny_UnoR4WiFi.hh"
 
 static const uint8_t s_hex[16] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
@@ -448,6 +456,38 @@ void setup() {
   app.add(&BI1);
   Serial.println("Have TWAI bus @ 250kbit");
   delay(100);
+
+#elif defined(ARDUINO_UNOR4_WIFI)
+  /* Variation on the original test setup but two Uno R4 WiFi devices talking to each other at 250kbit.
+   * The state of digital pin 12 is used to determine which of the two devices this is.
+   */
+  pinMode(12, INPUT);
+  uint32_t default_id = 31;
+  uint32_t accepts_id = 32;
+  if (digitalRead(12)) {
+    default_id = 32;
+    accepts_id = 31;
+  }
+
+  UnoR4WiFi* bus = UnoR4WiFi::bus(store);
+  if (!bus) {
+    Serial.println("No canbus?");
+    LED::onboard_LED()->error(7, 1, 1);
+    // ~~ (unreached) ~~
+  }
+
+  BusInfo BI(store, bus, default_id, accepts_id);
+  bus->set_handler(&BI);
+
+  if (!bus->begin()) {
+    Serial.println("Canbus error.");
+    LED::onboard_LED()->error(7, 1, 2);
+    // ~~ (unreached) ~~
+  }
+
+  app.add(&BI);
+
+  Serial.println("Have Uno R4 WiFi CAN bus @ 250kbit");
 
 #endif
 

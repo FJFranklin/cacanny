@@ -8,13 +8,6 @@
 #ifndef CaCanny_config_hh
 #define CaCanny_config_hh
 
-#define ENABLE_MCP2515   1 // include in build
-
-/* Uncomment one of the following if building on Teensy
- */
-//#define TEST_CAN1_MCP2515_250k  1
-//#define TEST_CAN2_MCP2515_1000k 1
-#define TEST_CAN1_CAN2_250k     1
-//#define TEST_CAN1_CAN2_1000k    1
+#define ENABLE_MCP2515   0 // include in build
 
 #endif /* ! CaCanny_config_hh */

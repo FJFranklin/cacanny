@@ -11,8 +11,13 @@
 #include "CaCanny_Base.hh"
 
 //WIRING PINS
+#if defined(ESP_PLATFORM)
 #define CAN_TX_PIN GPIO_NUM_27
 #define CAN_RX_PIN GPIO_NUM_26
+#else
+#define CAN_TX_PIN 27
+#define CAN_RX_PIN 26
+#endif
 
 namespace CaCanny {
 

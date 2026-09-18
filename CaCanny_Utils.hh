@@ -11,6 +11,7 @@
 #include <Arduino.h>
 
 class Adafruit_NeoPixel;
+class ArduinoLEDMatrix;
 
 namespace CaCanny {
 
@@ -175,12 +176,14 @@ namespace CaCanny {
   class LED {
   private:
     Adafruit_NeoPixel* m_pixel; // for the Feather M4 CAN
+    ArduinoLEDMatrix* m_matrix; // for the Uno R4 WiFi
     bool m_state;
     bool m_error;
   public:
     static LED* onboard_LED();
 
     LED(Adafruit_NeoPixel* pixel = 0);
+    LED(ArduinoLEDMatrix* matrix);
     ~LED() {}
 
     void blink(bool bOn);

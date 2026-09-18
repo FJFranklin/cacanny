@@ -8,6 +8,9 @@
 #if defined(ADAFRUIT_FEATHER_M4_CAN)
 #include <Adafruit_NeoPixel.h>
 #endif
+#if defined(ARDUINO_UNOR4_WIFI)
+#include <Arduino_LED_Matrix.h>
+#endif
 
 #include "CaCanny_Utils.hh"
 
@@ -125,6 +128,9 @@ void Timer::run() {
 #if defined(ADAFRUIT_FEATHER_M4_CAN)
 static Adafruit_NeoPixel s_pixel(1, PIN_NEOPIXEL, NEO_GRB + NEO_KHZ800);
 static LED s_led(&s_pixel);
+#elif defined(ARDUINO_UNOR4_WIFI)
+ArduinoLEDMatrix s_matrix;
+static LED s_led(&s_matrix);
 #else
 static LED s_led;
 #endif
@@ -133,7 +139,7 @@ LED* LED::onboard_LED() {
   return &s_led;
 }
 
-LED::LED(Adafruit_NeoPixel* pixel) : m_pixel(pixel), m_state(false), m_error(false) {
+LED::LED(Adafruit_NeoPixel* pixel) : m_pixel(pixel), m_matrix(0), m_state(false), m_error(false) {
 #if defined(ADAFRUIT_FEATHER_M4_CAN)
   if (m_pixel) {
     m_pixel->begin();
@@ -145,6 +151,20 @@ LED::LED(Adafruit_NeoPixel* pixel) : m_pixel(pixel), m_state(false), m_error(fal
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, 0);
 #endif
+}
+
+LED::LED(ArduinoLEDMatrix* matrix) : m_pixel(0), m_matrix(matrix), m_state(false), m_error(false) {
+#if defined(ARDUINO_UNOR4_WIFI)
+  const unsigned long frame[] = {
+      0x70000000,
+      0x0,
+      0x0
+  };
+  matrix->loadFrame(frame);
+  matrix->begin();
+#endif
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, 0);
 }
 
 void LED::blink(bool bOn) {
