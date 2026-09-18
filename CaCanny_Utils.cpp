@@ -133,7 +133,7 @@ LED* LED::onboard_LED() {
   return &s_led;
 }
 
-LED::LED(Adafruit_NeoPixel* pixel) : m_pixel(pixel), m_state(false) {
+LED::LED(Adafruit_NeoPixel* pixel) : m_pixel(pixel), m_state(false), m_error(false) {
 #if defined(ADAFRUIT_FEATHER_M4_CAN)
   if (m_pixel) {
     m_pixel->begin();
@@ -154,6 +154,15 @@ void LED::blink(bool bOn) {
     m_pixel->setBrightness(bOn ? 31 : 1);
     m_pixel->show();
   }
+#elif defined(RGB_BUILTIN)
+  if (bOn) {
+    if (m_error)
+      rgbLedWrite(RGB_BUILTIN, 64, 0, 0);
+    else
+      rgbLedWrite(RGB_BUILTIN, 0, 64, 0);
+  } else {
+    rgbLedWrite(RGB_BUILTIN, 0, 0, 0);
+  }
 #else
   digitalWrite(LED_BUILTIN, bOn);
 #endif
@@ -166,6 +175,7 @@ void LED::error(int e1, int e2, int e3, bool loop_forever) { // on fatal error, 
     m_pixel->setPixelColor(0, m_pixel->Color(255, 0, 0)); // switch pixel to red
   }
 #endif
+  m_error = true;
   
   int ecode[3] = {e1, e2, e3};
   while (true) {
@@ -190,4 +200,5 @@ void LED::error(int e1, int e2, int e3, bool loop_forever) { // on fatal error, 
     m_pixel->setPixelColor(0, m_pixel->Color(0, 255, 0)); // switch pixel to green
   }
 #endif
+  m_error = false;
 }
