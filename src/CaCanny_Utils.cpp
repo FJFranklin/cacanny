@@ -87,14 +87,20 @@ void Timer::tick() {
   // ...
 }
 
+void Timer::timer_will_begin() { // runs once only and before any other call
+  // ...
+}
+
 void Timer::run() {
+  m_stop = false;
+
+  timer_will_begin(); // This method can stop the timer before it even starts.
+
   int count_ms = 0;
   int count_10ms = 0;
   int count_tenths = 0;
 
   unsigned long previous_time = millis();
-
-  m_stop = false;
 
   while (!m_stop) {
     tick();
@@ -140,6 +146,14 @@ LED* LED::onboard_LED() {
 }
 
 LED::LED(Adafruit_NeoPixel* pixel) : m_pixel(pixel), m_matrix(0), m_state(false), m_error(false) {
+  // ...
+}
+
+LED::LED(ArduinoLEDMatrix* matrix) : m_pixel(0), m_matrix(matrix), m_state(false), m_error(false) {
+  // ...
+}
+
+bool LED::begin() {
 #if defined(ADAFRUIT_FEATHER_M4_CAN)
   if (m_pixel) {
     m_pixel->begin();
@@ -147,24 +161,22 @@ LED::LED(Adafruit_NeoPixel* pixel) : m_pixel(pixel), m_matrix(0), m_state(false)
     m_pixel->setBrightness(1);
     m_pixel->show();
   }
-#else
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, 0);
-#endif
-}
-
-LED::LED(ArduinoLEDMatrix* matrix) : m_pixel(0), m_matrix(matrix), m_state(false), m_error(false) {
-#if defined(ARDUINO_UNOR4_WIFI)
-  const unsigned long frame[] = {
+#elif defined(ARDUINO_UNOR4_WIFI)
+  if (m_matrix) {
+    const unsigned long frame[] = {
       0x70000000,
       0x0,
       0x0
-  };
-  matrix->loadFrame(frame);
-  matrix->begin();
-#endif
+    };
+    m_matrix->loadFrame(frame);
+    m_matrix->begin();
+  }
+#else
+  /* This sometimes works on the Uno R4 WiFi but LED_BUILTIN overlaps with SCLK on Pin 13.
+   */
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, 0);
+#endif
 }
 
 void LED::blink(bool bOn) {
@@ -182,6 +194,15 @@ void LED::blink(bool bOn) {
       rgbLedWrite(RGB_BUILTIN, 0, 64, 0);
   } else {
     rgbLedWrite(RGB_BUILTIN, 0, 0, 0);
+  }
+#elif defined(ARDUINO_UNOR4_WIFI)
+  if (m_matrix) { // takes approximately 6 microseconds to update the LED matrix
+    unsigned long frame[] = {
+      bOn ? 0xF0000000 : 0x70000000, // TODO: display error numbers through LED pattern
+      0x0,
+      0x0
+    };
+    m_matrix->loadFrame(frame);
   }
 #else
   digitalWrite(LED_BUILTIN, bOn);

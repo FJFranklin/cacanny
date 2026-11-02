@@ -172,6 +172,9 @@ public:
   ~App() {
     // ...
   }
+  void timer_will_begin() { // runs once only and before any other call
+    // ...
+  }
   void add(BusInfo* businfo) {
     if (m_businfo)
       m_businfo->append_to_list(businfo);
@@ -229,6 +232,8 @@ MessageStore<16> store;
 void setup() {
   Serial.begin(115200);
   delay(2000);
+
+  LED::onboard_LED()->begin();
 
   App app(store);
 

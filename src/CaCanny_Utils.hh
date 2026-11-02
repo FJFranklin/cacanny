@@ -167,6 +167,8 @@ namespace CaCanny {
     virtual void every_second();         // runs once every second
     virtual void tick();
 
+    virtual void timer_will_begin();     // runs once only and before any other call
+
     inline void stop() {
       m_stop = true;
     }
@@ -186,6 +188,7 @@ namespace CaCanny {
     LED(ArduinoLEDMatrix* matrix);
     ~LED() {}
 
+    bool begin();
     void blink(bool bOn);
     void error(int e1, int e2, int e3, bool loop_forever = true);
   };
