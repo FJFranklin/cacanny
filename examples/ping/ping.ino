@@ -9,9 +9,9 @@
 
 /* Uncomment one of the following if building on Teensy
  */
-//#define TEST_CAN1_MCP2515_250k  1
+#define TEST_CAN1_MCP2515_250k  1
 //#define TEST_CAN2_MCP2515_1000k 1
-#define TEST_CAN1_CAN2_250k     1
+//#define TEST_CAN1_CAN2_250k     1
 //#define TEST_CAN1_CAN2_1000k    1
 
 #include "CaCanny_Feather.hh"
@@ -297,7 +297,7 @@ void setup() {
   Serial.println("Have Teensy CAN(1) bus @ 250kbit");
   delay(100);
 
-  MCP2515* bus2 = MCP2515::bus(store);
+  CC_MCP2515* bus2 = CC_MCP2515::bus(store);
   if (!bus2) {
     Serial.println("No MCP2515 bus?");
     LED::onboard_LED()->error(2, 2, 1);
@@ -379,7 +379,7 @@ void setup() {
   Serial.println("Have Teensy CAN(2) bus @ 1Mbit");
   delay(100);
 
-  MCP2515* bus2 = MCP2515::bus(store);
+  CC_MCP2515* bus2 = CC_MCP2515::bus(store);
   if (!bus2) {
     Serial.println("No MCP2515 bus?");
     LED::onboard_LED()->error(4, 2, 1);

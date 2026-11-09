@@ -10,20 +10,33 @@
 
 #include "CaCanny_Base.hh"
 
+#if ENABLE_MCP2515_Adafruit
 class Adafruit_MCP2515;
+#endif
+#if ENABLE_MCP2515_autowp
+class MCP2515;
+struct can_frame;
+#endif
 
 namespace CaCanny {
 
-  class MCP2515 : public Base {
+  class CC_MCP2515 : public Base {
   private:
+#if ENABLE_MCP2515_Adafruit
     Adafruit_MCP2515* m_mcp;
+#endif
+#if ENABLE_MCP2515_autowp
+    MCP2515* m_mcp;
+    can_frame* m_msg;
+#endif
+    int m_pin_chip_select;
     int m_pin_interrupt;
   public:
-    static MCP2515* bus(ItemOwner<CanMessage>& store, int pin_chip_select = 10, int pin_interrupt = 13);
+    static CC_MCP2515* bus(ItemOwner<CanMessage>& store, int pin_chip_select = 10, int pin_interrupt = 13);
 
-    MCP2515(ItemOwner<CanMessage>& store, int pin_chip_select, int pin_interrupt);
+    CC_MCP2515(ItemOwner<CanMessage>& store, int pin_chip_select, int pin_interrupt);
 
-    ~MCP2515();
+    ~CC_MCP2515();
 
     bool begin(Bitrate bitrate = lb_250kbit);
     void spin();
