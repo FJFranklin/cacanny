@@ -171,12 +171,15 @@ bool LED::begin() {
     m_matrix->loadFrame(frame);
     m_matrix->begin();
   }
+#elif defined(RGB_BUILTIN)
+  // no setup required
 #else
   /* This sometimes works on the Uno R4 WiFi but LED_BUILTIN overlaps with SCLK on Pin 13.
    */
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, 0);
 #endif
+  return true;
 }
 
 void LED::blink(bool bOn) {
