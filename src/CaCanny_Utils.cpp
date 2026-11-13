@@ -113,18 +113,18 @@ void Timer::run() {
       every_milli();
 
       if (++count_ms == 10) {
-	count_ms = 0;
-	every_10ms();
+        count_ms = 0;
+        every_10ms();
 
-	if (++count_10ms == 10) {
-	  count_10ms = 0;
-	  every_tenth(count_tenths);
+        if (++count_10ms == 10) {
+          count_10ms = 0;
+          every_tenth(count_tenths);
 
-	  if (++count_tenths == 10) {
-	    count_tenths = 0;
-	    every_second();
-	  }
-	}
+          if (++count_tenths == 10) {
+            count_tenths = 0;
+            every_second();
+          }
+        }
       }
     }
     yield(); // just in case it's needed, e.g., to reset the watchdog timer on the ESP8266

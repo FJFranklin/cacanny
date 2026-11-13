@@ -140,7 +140,7 @@ namespace CaCanny {
   public:
     MessageStore() {
       for (uint8_t i = 0; i < MSCount; i++) {
-	push(m_allocation[i], true);
+        push(m_allocation[i], true);
       }
     }
     virtual ~MessageStore() {
