@@ -7,6 +7,11 @@
 
 #include "CaCanny_config.hh"
 
+/* ESP32 WIRING PINS
+ */
+#define CAN_TX_PIN 21
+#define CAN_RX_PIN 22
+
 /* Uncomment one of the following if building on Teensy
  */
 #define TEST_CAN1_MCP2515_250k  1
@@ -442,7 +447,7 @@ void setup() {
 #endif // Teensy tests
 #elif defined(ESP_PLATFORM)
 
-  TWAI* bus1 = TWAI::bus(store);
+  TWAI* bus1 = TWAI::bus(store, CAN_TX_PIN, CAN_RX_PIN);
   if (!bus1) {
     Serial.println("No TWAI bus?");
     LED::onboard_LED()->error(6, 1, 1);

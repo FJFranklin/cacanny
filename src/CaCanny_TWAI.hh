@@ -10,15 +10,6 @@
 
 #include "CaCanny_Base.hh"
 
-//WIRING PINS
-#if defined(ESP_PLATFORM)
-#define CAN_TX_PIN GPIO_NUM_27
-#define CAN_RX_PIN GPIO_NUM_26
-#else
-#define CAN_TX_PIN 27
-#define CAN_RX_PIN 26
-#endif
-
 namespace CaCanny {
 
   class TWAI : public Base {
@@ -26,7 +17,7 @@ namespace CaCanny {
     int m_pin_tx;
     int m_pin_rx;
   public:
-    static TWAI* bus(ItemOwner<CanMessage>& store, int pin_tx = CAN_TX_PIN, int pin_rx = CAN_RX_PIN);
+    static TWAI* bus(ItemOwner<CanMessage>& store, int pin_tx, int pin_rx);
 
     TWAI(ItemOwner<CanMessage>& store, int pin_tx, int pin_rx);
 
